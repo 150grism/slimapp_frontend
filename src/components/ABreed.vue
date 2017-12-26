@@ -1,14 +1,10 @@
 <template>
-  <div class="UserSavedBreeds">
-    <div id="images" v-images-loaded="packGrid" class="images" ref="images">
-      <div class="image" v-for="(url, index) in breedImageURLs" ref="imageConts" :key="index">
-        <img :src="url" :id="imageId[index]" v-on:mouseover="asd" v-on:mouseleave="dsa" v-on:click="click" :alt="allBreeds[index]">
-        <div class="textWall">
-          <span class="save">SAVE</span>
-        </div>
-        <span class="breedTag">  {{allBreeds[index]}} </span>
-      </div>
+  <div class="ABreed">
+    <img :src="url" :id="imageId[index]" v-on:mouseover="asd" v-on:mouseleave="dsa" v-on:click="click" :alt="allBreeds[index]">
+    <div class="textWall">
+      <span class="save">SAVE</span>
     </div>
+    <span class="breedTag">  {{allBreeds[index]}} </span>
   </div>
 </template>
 
