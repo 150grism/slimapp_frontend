@@ -1,11 +1,9 @@
 <template>
   <div class="UserSavedBreeds">
-    <!-- <img v-bind:src="this.breedImageURLs" alt="">    -->
     <ul id="images">
       <li v-for="(url, index) in breedImageURLs" :key="index">
-        <img :src="url" alt="">
+        <img :src="url" :alt="userSavedBreeds[index]">
         {{userSavedBreeds[index]}}
-        {{index}}
       </li>
     </ul>
   </div>
@@ -23,8 +21,8 @@ export default {
     fetchSavedBreeds() {
       this.$http.get('http://slimapp/api/user/1')
         .then(response => {
-          this.userSavedBreeds = response.body.map(element => {
-            console.log(element)
+          let responseBody = response.body
+          this.userSavedBreeds = responseBody.map(element => {
             return element.breed_name
           })
         })
@@ -32,13 +30,11 @@ export default {
           Promise.all(this.userSavedBreeds.map((breed) => {
             return this.$http.get('https://dog.ceo/api/breed/' + breed + '/images/random')
               .then(response => {
-                console.log(response.body.message)
                 return response.body.message
               })
           }))
           .then(all => {
             this.breedImageURLs = all
-            return console.log(all)
           })
         })
     }
