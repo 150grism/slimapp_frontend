@@ -1,84 +1,82 @@
 <template>
-  <div class="ABreed">
-    <img :src="url" :id="imageId[index]" v-on:mouseover="asd" v-on:mouseleave="dsa" v-on:click="click" :alt="allBreeds[index]">
+  <div class="ABreed" v-images-loaded="packGrid" ref="tile"
+    v-on:mouseover="mouseover" 
+    v-on:mouseleave="mouseleave" 
+    v-on:click="click">
+
+    <img :src="url" :alt="breed">
     <div class="textWall">
-      <span class="save">SAVE</span>
+      <span class="save" v-on:click="breedInteraction">SAVE</span>
     </div>
-    <span class="breedTag">  {{allBreeds[index]}} </span>
+    <span class="breedTag">  {{breed}} </span>
+
   </div>
 </template>
 
 <script>
 import imagesLoaded from 'vue-images-loaded'
+
+const autoRows = 5
+const rowGap = 2
+const gridConst = {
+  autoRows: autoRows,
+  rowGap: rowGap,
+  total: autoRows + rowGap
+}
+
 export default {
+  props: ['url', 'breed'],
   data () {
     return {
-      allBreeds: [],
-      breedImageURLs: [],
-      imageId: []
+      clickState: false
     }
   },
   directives: {
     imagesLoaded
   },
   methods: {
-    fetchAllBreeds() {
-      this.$http.get('https://dog.ceo/api/breeds/list/all')
-        .then(response => {
-          this.allBreeds = Object.keys(response.body.message).map(element => {
-            return element
-          })
-        })
-        .then(() => {
-          Promise.all(this.allBreeds.map((breed) => {
-            return this.$http.get('https://dog.ceo/api/breed/' + breed + '/images/random')
-              .then(response => {
-                return response.body.message
-              })
-          }))
-          .then(all => {
-            this.breedImageURLs = all
-          })
-        })
-    },
     packGrid() {
-      let imageConts = this.$refs.imageConts
-      imageConts.forEach((imageCont) => {
-        let image = imageCont.children[0]
-        let rowSpan = Math.floor((image.height + 2) / 7)
-        imageCont.style.gridRowEnd = 'span ' + rowSpan
-        image.height = (rowSpan - 1) * 7
+      let tile = this.$refs.tile
+      // console.log(this.breed)
+      let image = tile.children[0]
+      let rowSpan = Math.floor((image.height + gridConst.rowGap) / gridConst.total)
+      tile.style.gridRowEnd = 'span ' + rowSpan
+      image.height = rowSpan * gridConst.total - gridConst.rowGap
 
-        let textWall = imageCont.children[1]
-        console.log(textWall)
-        textWall.style.height = image.height + 'px'
-        textWall.style.width = image.width + 'px'
-        textWall.style.marginLeft = -(image.width / 2) + 'px'
+      let textWall = tile.children[1]
+      // console.log(textWall)
+      textWall.style.height = image.height + 'px'
+      textWall.style.width = image.width + 'px'
+      textWall.style.marginLeft = -(image.width / gridConst.rowGap) + 'px'
 
-        let breedTag = imageCont.children[2]
-        breedTag.style.width = image.width + 'px'
-        breedTag.style.marginLeft = -(image.width / 2) + 'px'
-        breedTag.style.top = image.height - 34 + 'px'
-      })
+      let breedTag = tile.children[2]
+      breedTag.style.width = image.width + 'px'
+      breedTag.style.marginLeft = -(image.width / gridConst.rowGap) + 'px'
+      breedTag.style.top = image.height - 34 + 'px'
     },
-    asd(event) {
-      let hoveredImageDIV = event.target.parentElement
-      hoveredImageDIV.children[2].style.visibility = 'visible'
-      console.log(hoveredImageDIV.children[2])
+    mouseover(event) {
+      let tile = this.$refs.tile
+      // console.log(event.target)
+      tile.children[2].style.visibility = 'visible'
     },
-    dsa(event) {
-      let hoveredImageDIV = event.target.parentElement
-      hoveredImageDIV.children[2].style.visibility = 'hidden'
-      console.log(hoveredImageDIV.children[2])
+    mouseleave(event) {
+      let tile = this.$refs.tile
+      tile.children[2].style.visibility = 'hidden'
     },
     click(event) {
-      let hoveredImageDIV = event.target.parentElement
-      hoveredImageDIV.children[1].style.display = 'block'
-      console.log(hoveredImageDIV.children[1])
+      let tile = this.$refs.tile
+      this.clickState = !this.clickState
+      // console.log(this.clickState)
+      this.clickState ? tile.children[1].style.display = 'block' : tile.children[1].style.display = 'none'
+      // tile.children[1].style.display = 'block'
+    },
+    breedInteraction() {
+      let breed = {breed: this.breed}
+      this.$http.post('http://slimapp/api/users/1/save', breed)
+        .then(response => {
+          console.log(response)
+        })
     }
-  },
-  created: function() {
-    this.fetchAllBreeds()
   }
 }
 </script>
@@ -86,20 +84,11 @@ export default {
 <!-- Add "scoped" attribute to limit CSS to this component only -->
 <style scoped>
 
-.images {
-   display: grid;
-   grid-column-gap: 2px;
-   grid-row-gap: 2px;
-   grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
-   grid-auto-flow: dense;
-   grid-auto-rows: 5px;
-}
-
-.images > .image {
+.ABreed {
   position: relative;
 }
 
-.images > .image > img {
+.ABreed > img {
   display: block;
   margin: 0 auto;
   max-width: 100%;
