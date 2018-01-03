@@ -5,7 +5,8 @@
         v-for="(url, index) in breedImageURLs"
         :key="index"
         :url="url"
-        :breed="allBreeds[index]"
+        :breed="photosOfABreed ? photosOfABreed : allBreeds[index][1] + ' ' + allBreeds[index][0]"
+        v-on:breedOpening="openBreed(allBreeds[index])"
       />
 
       <!-- supposed to be in ABreed -->
@@ -29,8 +30,8 @@ export default {
     return {
       allBreeds: [],
       breedImageURLs: [],
-      url: ''
-      // imageId: []
+      url: '',
+      photosOfABreed: ''
     }
   },
   directives: {
@@ -40,20 +41,43 @@ export default {
     fetchAllBreeds() {
       this.$http.get('https://dog.ceo/api/breeds/list/all')
         .then(response => {
-          this.allBreeds = Object.keys(response.body.message).map(element => {
-            return element
-          })
+          let message = response.body.message
+          for (const aBreed in message) {
+            if (!message[aBreed].length) {
+              this.allBreeds.push([aBreed, ''])
+            } else {
+              let subBreeds = message[aBreed]
+              subBreeds.forEach(subBreed => {
+                let subBreedLowerCase = subBreed.toLowerCase()
+                this.allBreeds.push([aBreed, subBreedLowerCase])
+              })
+            }
+          }
+          this.allBreeds.sort()
         })
         .then(() => {
-          Promise.all(this.allBreeds.map((breed) => {
-            return this.$http.get('https://dog.ceo/api/breed/' + breed + '/images/random')
+          Promise.all(this.allBreeds.map(asBreed => {
+            let url = asBreed[1] != '' ? `https://dog.ceo/api/breed/${asBreed[0]}/${asBreed[1]}/images/random` : `https://dog.ceo/api/breed/${asBreed[0]}/images/random`
+            return this.$http.get(url)
               .then(response => {
                 return response.body.message
               })
           }))
-          .then(all => {
-            this.breedImageURLs = all
+          .then(allUrls => {
+            this.breedImageURLs = allUrls
+            console.log(this.breedImageURLs)
           })
+        })
+    },
+    openBreed(asBreed) {
+      console.log(asBreed[1] != '')
+      this.photosOfABreed = asBreed[1]
+      let url = asBreed[1] != '' ? `https://dog.ceo/api/breed/${asBreed[0]}/${asBreed[1]}/images` : `https://dog.ceo/api/breed/${asBreed[0]}/images`
+      console.log(url)
+      this.$http.get(url)
+        .then(response => {
+          this.breedImageURLs = response.body.message
+          console.log(this.breedImageURLs)
         })
     }
   },
@@ -72,7 +96,7 @@ export default {
    grid-row-gap: 2px;
    grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
    grid-auto-flow: dense;
-   grid-auto-rows: 5px;
+   grid-auto-rows: 10px;
 }
 
 </style>

@@ -6,7 +6,8 @@
 
     <img :src="url" :alt="breed">
     <div class="textWall">
-      <span class="save" v-on:click="breedInteraction">SAVE</span>
+      <span class="open" v-on:click="breedOpener">OPEN</span>
+      <span class="save" v-on:click="saveBreed">SAVE</span>
     </div>
     <span class="breedTag">  {{breed}} </span>
 
@@ -16,7 +17,7 @@
 <script>
 import imagesLoaded from 'vue-images-loaded'
 
-const autoRows = 5
+const autoRows = 10
 const rowGap = 2
 const gridConst = {
   autoRows: autoRows,
@@ -47,12 +48,17 @@ export default {
       // console.log(textWall)
       textWall.style.height = image.height + 'px'
       textWall.style.width = image.width + 'px'
-      textWall.style.marginLeft = -(image.width / gridConst.rowGap) + 'px'
+      textWall.style.marginLeft = -(image.width / 2) + 'px'
 
       let breedTag = tile.children[2]
-      breedTag.style.width = image.width + 'px'
-      breedTag.style.marginLeft = -(image.width / gridConst.rowGap) + 'px'
-      breedTag.style.top = image.height - 34 + 'px'
+      if (breedTag.style.width <= image.width) {
+        breedTag.style.width = image.width + 'px'
+        breedTag.style.marginLeft = -(image.width / 2) + 'px'
+      } else {
+        breedTag.style.marginLeft = -(breedTag.style.width / 2) + 'px'
+      }
+
+      // breedTag.style.top = image.height - 34 + 'px'
     },
     mouseover(event) {
       let tile = this.$refs.tile
@@ -70,12 +76,15 @@ export default {
       this.clickState ? tile.children[1].style.display = 'block' : tile.children[1].style.display = 'none'
       // tile.children[1].style.display = 'block'
     },
-    breedInteraction() {
+    saveBreed() {
       let breed = {breed: this.breed}
       this.$http.post('http://slimapp/api/users/1/save', breed)
         .then(response => {
           console.log(response)
         })
+    },
+    breedOpener() {
+      this.$emit('breedOpening')
     }
   }
 }
@@ -120,11 +129,25 @@ export default {
   cursor: pointer;
 }
 
+.open {
+  position: absolute;
+  width: 100%;
+  /* bottom: 50px; */
+  left: 0;
+  top: calc(50% - 51px);
+  text-align: center;
+  color: white;
+  font-size: 30px;
+  visibility: visible;
+  overflow: visible;
+  cursor: pointer;
+}
+
 .breedTag {
   position: absolute;
   width: 100%;
   left: 50%;
-  /* top: 0; */
+  bottom: 0;
   text-align: center;
   background: rgba(51,51,51,0.8);
   color: white;
