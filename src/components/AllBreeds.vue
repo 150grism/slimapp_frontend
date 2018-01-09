@@ -6,6 +6,7 @@
         :key="item[urlIndex]"
         :url="item[urlIndex]"
         :breed="photosOfABreed ? photosOfABreed : item[1] + ' ' + item[0]"
+        :mode="mode"
         v-on:breedOpening="openBreed(item)"
       />
     </div>
@@ -26,7 +27,8 @@ export default {
       breedImageURLs: [],
       url: '',
       photosOfABreed: '',
-      urlIndex: 2
+      urlIndex: 2,
+      mode: 'all breeds'
     }
   },
   directives: {
@@ -73,6 +75,7 @@ export default {
           let newUrls = response.body.message
           this.urlIndex = 0
           this.bigArray = []
+          this.mode = 'one breed'
           newUrls.forEach(url => {
             this.bigArray.push([url])
           })

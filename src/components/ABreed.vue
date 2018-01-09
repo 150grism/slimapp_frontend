@@ -6,7 +6,7 @@
 
     <img :src="url" :alt="breed">
     <div class="textWall">
-      <span class="open" v-on:click="breedOpener">OPEN</span>
+      <span v-if="mode === 'all breeds'" class="open" v-on:click="breedOpener">OPEN</span>
       <span class="save" v-on:click="saveBreed">SAVE</span>
     </div>
     <span class="breedTag">  {{breed}} </span>
@@ -26,7 +26,7 @@ const gridConst = {
 }
 
 export default {
-  props: ['url', 'breed'],
+  props: ['url', 'breed', 'mode'],
   data () {
     return {
       clickState: false
@@ -77,8 +77,9 @@ export default {
       // tile.children[1].style.display = 'block'
     },
     saveBreed() {
-      let breed = {breed: this.breed}
-      this.$http.post('http://slimapp/api/users/1/save', breed)
+      let load = this.mode === 'all breeds' ?  {breed: this.breed} : {picture_url: this.url}
+      let url = this.mode === 'all breeds' ? 'http://slimapp/api/users/1/save' : 'http://slimapp/api/users/1/picture/save'
+      this.$http.post(url, load)
         .then(response => {
           console.log(response)
         })
