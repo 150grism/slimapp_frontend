@@ -1,20 +1,13 @@
 <template>
   <div class="AllBreeds">
     <div id="images" class="images" ref="images">      
-      <ABreed
-        v-for="(url, index) in breedImageURLs"
-        :key="index"
-        :url="url"
-        :breed="photosOfABreed ? photosOfABreed : allBreeds[index][1] + ' ' + allBreeds[index][0]"
-        v-on:breedOpening="openBreed(allBreeds[index])"
+      <ABreed v-if="item[urlIndex] !== undefined"
+        v-for="item in bigArray"
+        :key="item[urlIndex]"
+        :url="item[urlIndex]"
+        :breed="photosOfABreed ? photosOfABreed : item[1] + ' ' + item[0]"
+        v-on:breedOpening="openBreed(item)"
       />
-
-      <!-- supposed to be in ABreed -->
-      <!-- <img :src="url" :id="imageId[index]" v-on:mouseover="asd" v-on:mouseleave="dsa" v-on:click="click" :alt="allBreeds[index]">
-      <div class="textWall">
-        <span class="save">SAVE</span>
-      </div>
-      <span class="breedTag">  {{allBreeds[index]}} </span> -->
     </div>
   </div>
 </template>
@@ -28,10 +21,12 @@ export default {
   },
   data () {
     return {
+      bigArray: [],
       allBreeds: [],
       breedImageURLs: [],
       url: '',
-      photosOfABreed: ''
+      photosOfABreed: '',
+      urlIndex: 2
     }
   },
   directives: {
@@ -54,36 +49,46 @@ export default {
             }
           }
           this.allBreeds.sort()
+          this.allBreeds = this.allBreeds.slice(0, 15)
+          this.bigArray = this.allBreeds
+          // console.log(this.$route.params.breed)
         })
         .then(() => {
-          Promise.all(this.allBreeds.map(asBreed => {
-            let url = asBreed[1] != '' ? `https://dog.ceo/api/breed/${asBreed[0]}/${asBreed[1]}/images/random` : `https://dog.ceo/api/breed/${asBreed[0]}/images/random`
-            return this.$http.get(url)
+          this.allBreeds.map((asBreed, index) => {
+            let url = asBreed[1] !== '' ? `https://dog.ceo/api/breed/${asBreed[0]}/${asBreed[1]}/images/random` : `https://dog.ceo/api/breed/${asBreed[0]}/images/random`
+            this.$http.get(url)
               .then(response => {
-                return response.body.message
+                asBreed.push(response.body.message)
               })
-          }))
-          .then(allUrls => {
-            this.breedImageURLs = allUrls
-            console.log(this.breedImageURLs)
           })
         })
     },
     openBreed(asBreed) {
-      console.log(asBreed[1] != '')
-      this.photosOfABreed = asBreed[1]
-      let url = asBreed[1] != '' ? `https://dog.ceo/api/breed/${asBreed[0]}/${asBreed[1]}/images` : `https://dog.ceo/api/breed/${asBreed[0]}/images`
-      console.log(url)
+      this.photosOfABreed = asBreed[1] !== '' ? asBreed[1] + ' ' + asBreed[0] : asBreed[0]
+      let breedName = asBreed[1] !== '' ? asBreed[0] + '-' + asBreed[1] : asBreed[0]
+      this.$router.push(breedName)
+      let url = asBreed[1] !== '' ? `https://dog.ceo/api/breed/${asBreed[0]}/${asBreed[1]}/images` : `https://dog.ceo/api/breed/${asBreed[0]}/images`
       this.$http.get(url)
         .then(response => {
-          this.breedImageURLs = response.body.message
-          console.log(this.breedImageURLs)
+          let newUrls = response.body.message
+          this.urlIndex = 0
+          this.bigArray = []
+          newUrls.forEach(url => {
+            this.bigArray.push([url])
+          })
+          // console.log(this.$route.params.breed)
         })
     }
   },
   created: function() {
     this.fetchAllBreeds()
   }
+  // updated: function() {
+  //   if (this.$route.params.breed === undefined) {
+  //     this.urlIndex = 2
+  //     this.fetchAllBreeds()
+  //   }
+  // }
 }
 </script>
 

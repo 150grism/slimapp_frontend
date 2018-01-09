@@ -2,7 +2,7 @@ import Vue from 'vue'
 import Router from 'vue-router'
 import vueresource from 'vue-resource'
 import AllBreeds from '@/components/AllBreeds'
-import UserSavedBreeds from '@/components/UserSavedBreeds'
+// import UserSavedBreeds from '@/components/UserSavedBreeds'
 
 Vue.use(Router)
 Vue.use(vueresource)
@@ -10,14 +10,14 @@ Vue.use(vueresource)
 export default new Router({
   routes: [
     {
-      path: '/all',
+      path: '/',
       name: 'AllBreeds',
       component: AllBreeds
     },
     {
-      path: '/',
-      name: 'UserSavedBreeds',
-      component: UserSavedBreeds
+      path: '/:breed',
+      name: 'AllBreeds',
+      component: AllBreeds
     }
   ]
 })
