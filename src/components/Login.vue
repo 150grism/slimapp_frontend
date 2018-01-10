@@ -29,15 +29,17 @@ export default {
           .then(response => {
             let userId = response.body[0].user_id
             userId !== 0 ? this.$emit('logingin', userId) : console.log('no user')
+            this.cancel()
           })
       } else {
         this.$http.post('http://slimapp/api/users/signup', {"user": this.user, "password": this.password})
         .then(response => {
           console.log(response)
+          this.cancel()
         })
       }
       this.user = ''
-      this.password = ''  
+      this.password = ''
     },
     cancel() {
       this.$emit('displaying', 'no')

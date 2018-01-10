@@ -10,7 +10,7 @@
       v-if="logSignin !== 'no'"
       :logSignin="logSignin"
       v-on:displaying="signOrLogIn"
-      v-on:logingin="logingin"/>
+      v-on:logingin="logingIn"/>
     <div id="images" class="images" ref="images">      
       <ABreed v-if="item[urlIndex] !== undefined"
         v-for="item in bigArray"
@@ -155,7 +155,8 @@ export default {
     signOrLogIn(sl) {
       this.logSignin = sl
     },
-    logingin(userId) {
+    logingIn(userId) {
+      console.log(userId)
       this.userId = userId
     }
   },
