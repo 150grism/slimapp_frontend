@@ -1,12 +1,24 @@
 <template>
   <div class="AllBreeds">
+    <Toolbar 
+      v-on:savedBreedsGetting="showSavedBreeds()" 
+      v-on:savedPicturesGetting="showSavedPictures()" 
+      v-on:allBreedsGetting="showAllBreeds()"
+      v-on:signingin="signOrLogIn"
+      v-on:logingin="signOrLogIn"/>
+    <Login 
+      v-if="logSignin !== 'no'"
+      :logSignin="logSignin"
+      v-on:displaying="signOrLogIn"
+      v-on:logingin="logingin"/>
     <div id="images" class="images" ref="images">      
       <ABreed v-if="item[urlIndex] !== undefined"
         v-for="item in bigArray"
-        :key="item[urlIndex]"
+        :key="item[0] + item[urlIndex]"
         :url="item[urlIndex]"
-        :breed="photosOfABreed ? photosOfABreed : item[1] + ' ' + item[0]"
+        :breed="photosOfABreed ? photosOfABreed : item[0]"
         :mode="mode"
+        :userId="userId"
         v-on:breedOpening="openBreed(item)"
       />
     </div>
@@ -14,25 +26,39 @@
 </template>
 
 <script>
+import Login from './Login.vue'
+import Toolbar from './Toolbar.vue'
 import ABreed from './ABreed.vue'
-import imagesLoaded from 'vue-images-loaded'
 export default {
   components: {
+    Login,
+    Toolbar,
     ABreed
   },
   data () {
     return {
       bigArray: [],
       allBreeds: [],
+      savedBreeds: [],
+      savedPictureUrls: [],
       breedImageURLs: [],
       url: '',
       photosOfABreed: '',
       urlIndex: 2,
-      mode: 'all breeds'
+      mode: 'all breeds',
+      logSignin: 'no',
+      userId: 0
     }
   },
-  directives: {
-    imagesLoaded
+  watch: {
+    '$route' (to, from) {
+      console.log(to.path, from.path)
+      switch (to.path) {
+        case '/all':
+          console.log(this.allBreeds, this.bigArray)
+          
+      }
+    }
   },
   methods: {
     fetchAllBreeds() {
@@ -81,6 +107,56 @@ export default {
           })
           // console.log(this.$route.params.breed)
         })
+    },
+    showSavedBreeds() {
+      this.$http.get('http://slimapp/api/user/' + this.userId + '/saved')
+        .then(response => {
+          let newBreeds = response.body
+          console.log(newBreeds)
+          this.urlIndex = 1
+          this.bigArray = []
+          this.savedBreeds = []
+          this.mode = 'one breed'
+          newBreeds.forEach(breed => {
+            this.savedBreeds.push([breed.breed_name])
+          })
+          this.bigArray = this.savedBreeds
+        })
+        .then(() => {
+          this.savedBreeds.map(asBreed => {
+            let url = `https://dog.ceo/api/breed/${asBreed}/images/random`
+            this.$http.get(url)
+              .then(response => {
+                asBreed.push(response.body.message)
+                console.log(asBreed)
+              })
+          })
+        })
+    },
+    showSavedPictures() {
+      this.$http.get('http://slimapp/api/user/' + this.userId + '/pictures/saved')
+        .then(response => {
+          let newUrls = response.body
+          console.log(newUrls)
+          this.urlIndex = 0
+          this.savedPictureUrls = []
+          this.bigArray = []
+          this.mode = 'one breed'
+          newUrls.forEach(picture => {
+            this.savedPictureUrls.push([picture.picture_url])
+          })
+          console.log(this.savedPictureUrls)
+          this.bigArray = this.savedPictureUrls
+        })
+    },
+    showAllBreeds() {
+      this.fetchAllBreeds()
+    },
+    signOrLogIn(sl) {
+      this.logSignin = sl
+    },
+    logingin(userId) {
+      this.userId = userId
     }
   },
   created: function() {

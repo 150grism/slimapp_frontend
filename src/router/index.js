@@ -10,7 +10,7 @@ Vue.use(vueresource)
 export default new Router({
   routes: [
     {
-      path: '/',
+      path: '/all',
       name: 'AllBreeds',
       component: AllBreeds
     },

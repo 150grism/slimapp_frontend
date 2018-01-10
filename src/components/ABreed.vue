@@ -26,7 +26,7 @@ const gridConst = {
 }
 
 export default {
-  props: ['url', 'breed', 'mode'],
+  props: ['url', 'breed', 'mode', 'userId'],
   data () {
     return {
       clickState: false
@@ -77,8 +77,8 @@ export default {
       // tile.children[1].style.display = 'block'
     },
     saveBreed() {
-      let load = this.mode === 'all breeds' ?  {breed: this.breed} : {picture_url: this.url}
-      let url = this.mode === 'all breeds' ? 'http://slimapp/api/users/1/save' : 'http://slimapp/api/users/1/picture/save'
+      let load = this.mode === 'all breeds' ? {breed: this.breed} : {picture_url: this.url}
+      let url = this.mode === 'all breeds' ? 'http://slimapp/api/users/' + this.userId + '/save' : 'http://slimapp/api/users/' + this.userId + '/picture/save'
       this.$http.post(url, load)
         .then(response => {
           console.log(response)
