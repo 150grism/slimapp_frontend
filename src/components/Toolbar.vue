@@ -1,12 +1,13 @@
 <template>
   <div class="toolbar">
     <div>
+      <a v-on:click="allBreedsPicturesUpdater" class="all-breeds">Update pictures</a>
       <a v-on:click="allBreedsGetter" class="all-breeds">All Breeds</a>
       <a v-on:click="savedBreedsGetter" class="saved-breeds">Saved Breeds</a>
       <a v-on:click="savedPicturesGetter" class="saved-pictures">Saved Pictures</a>
     </div>
     <a v-on:click="logerin" class="login">Log in</a>
-    <a v-on:click="signerin" class="signin">Sign in</a>
+    <a v-on:click="signerup" class="signup">Sign in</a>
   </div>
 </template>
 
@@ -19,6 +20,9 @@ export default {
     }
   },
   methods: {
+    allBreedsPicturesUpdater() {
+      this.$emit('allBreedsPicturesUpdating')
+    },
     allBreedsGetter() {
       this.$emit('allBreedsGetting')
     },
@@ -31,8 +35,8 @@ export default {
     logerin() {
       this.$emit('logingin', 'login')
     },
-    signerin() {
-      this.$emit('signingin', 'signin')
+    signerup() {
+      this.$emit('signingup', 'signup')
     }
   }
 }

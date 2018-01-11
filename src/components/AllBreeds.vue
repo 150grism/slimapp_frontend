@@ -1,10 +1,11 @@
 <template>
   <div class="AllBreeds">
     <Toolbar 
+      v-on:allBreedsPicturesUpdating="updateAllBreedsPictures"
       v-on:savedBreedsGetting="showSavedBreeds()" 
       v-on:savedPicturesGetting="showSavedPictures()" 
       v-on:allBreedsGetting="showAllBreeds()"
-      v-on:signingin="signOrLogIn"
+      v-on:signingup="signOrLogIn"
       v-on:logingin="signOrLogIn"/>
     <Login 
       v-if="logSignin !== 'no'"
@@ -16,7 +17,9 @@
         v-for="item in bigArray"
         :key="item[0] + item[urlIndex]"
         :url="item[urlIndex]"
-        :breed="photosOfABreed ? photosOfABreed : item[0]"
+        :userSomethingId="item[0]"
+        :breed="item[breedIndex[0]]"
+        :subbreed="item[breedIndex[1]]"
         :mode="mode"
         :userId="userId"
         v-on:breedOpening="openBreed(item)"
@@ -45,9 +48,10 @@ export default {
       url: '',
       photosOfABreed: '',
       urlIndex: 2,
+      breedIndex: [0, 1],
       mode: 'all breeds',
       logSignin: 'no',
-      userId: 0
+      userId: 10
     }
   },
   watch: {
@@ -82,14 +86,18 @@ export default {
           // console.log(this.$route.params.breed)
         })
         .then(() => {
-          this.allBreeds.map((asBreed, index) => {
-            let url = asBreed[1] !== '' ? `https://dog.ceo/api/breed/${asBreed[0]}/${asBreed[1]}/images/random` : `https://dog.ceo/api/breed/${asBreed[0]}/images/random`
-            this.$http.get(url)
-              .then(response => {
-                asBreed.push(response.body.message)
-              })
-          })
+          this.fetchRandomBreedsPictures(this.allBreeds)
         })
+    },
+    fetchRandomBreedsPictures(array, breedIndex = 0, subbreedIndex = 1) {
+      array.map(asBreed => {
+        let url = asBreed[subbreedIndex] !== '' ? `https://dog.ceo/api/breed/${asBreed[breedIndex]}/${asBreed[subbreedIndex]}/images/random` : `https://dog.ceo/api/breed/${asBreed[breedIndex]}/images/random`
+        this.$http.get(url)
+          .then(response => {
+            asBreed.push(response.body.message)
+          })
+      })
+      console.log(array)
     },
     openBreed(asBreed) {
       this.photosOfABreed = asBreed[1] !== '' ? asBreed[1] + ' ' + asBreed[0] : asBreed[0]
@@ -99,11 +107,11 @@ export default {
       this.$http.get(url)
         .then(response => {
           let newUrls = response.body.message
-          this.urlIndex = 0
+          this.urlIndex = 2
           this.bigArray = []
           this.mode = 'one breed'
           newUrls.forEach(url => {
-            this.bigArray.push([url])
+            this.bigArray.push([asBreed[0], asBreed[1], url])
           })
           // console.log(this.$route.params.breed)
         })
@@ -113,44 +121,53 @@ export default {
         .then(response => {
           let newBreeds = response.body
           console.log(newBreeds)
-          this.urlIndex = 1
+          this.urlIndex = 3
           this.bigArray = []
           this.savedBreeds = []
-          this.mode = 'one breed'
+          this.breedIndex = [1, 2]
+          this.mode = 'all breeds'
+          console.log(this.savedBreeds)
           newBreeds.forEach(breed => {
-            this.savedBreeds.push([breed.breed_name])
+            this.savedBreeds.push([breed.userbreed_id, breed.breed_name, breed.subbreed_name])
           })
           this.bigArray = this.savedBreeds
+          console.log(this.bigArray)
         })
         .then(() => {
-          this.savedBreeds.map(asBreed => {
-            let url = `https://dog.ceo/api/breed/${asBreed}/images/random`
-            this.$http.get(url)
-              .then(response => {
-                asBreed.push(response.body.message)
-                console.log(asBreed)
-              })
-          })
+          this.fetchRandomBreedsPictures(this.savedBreeds, 1, 2)
         })
     },
     showSavedPictures() {
+      this.photosOfABreed = ''
       this.$http.get('http://slimapp/api/user/' + this.userId + '/pictures/saved')
         .then(response => {
           let newUrls = response.body
           console.log(newUrls)
-          this.urlIndex = 0
+          this.urlIndex = 3
           this.savedPictureUrls = []
+          this.breedIndex = [1, 2]
           this.bigArray = []
           this.mode = 'one breed'
           newUrls.forEach(picture => {
-            this.savedPictureUrls.push([picture.picture_url])
+            this.savedPictureUrls.push([picture.userpicture_id, picture.breed_name, picture.subbreed_name, picture.picture_url])
           })
-          console.log(this.savedPictureUrls)
+          // console.log(this.savedPictureUrls)
           this.bigArray = this.savedPictureUrls
         })
     },
+    updateAllBreedsPictures() {
+      this.allBreeds.forEach(asBreed => {
+        asBreed.pop()
+      })
+      console.log(this.allBreeds)
+      this.fetchRandomBreedsPictures(this.allBreeds)
+    },
     showAllBreeds() {
-      this.fetchAllBreeds()
+      this.photosOfABreed = ''
+      this.breedIndex = [0, 1]
+      this.mode = 'all breeds'
+      this.urlIndex = 2
+      this.bigArray = this.allBreeds
     },
     signOrLogIn(sl) {
       this.logSignin = sl

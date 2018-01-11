@@ -4,12 +4,21 @@
     v-on:mouseleave="mouseleave" 
     v-on:click="click">
 
-    <img :src="url" :alt="breed">
-    <div class="textWall">
+    <img :src="url" :alt="subbreed + ' ' + breed">
+    <div class="text-wall">
+      <div class="text-wall__big-block">
+        <div class="text-wall__block">
+          <span class="text-wall__item save-breed" v-on:click="savee('breed')">+ breed</span>
+          <span class="text-wall__item delete-breed" v-on:click="deletee('breed')">- breed</span>
+        </div>
+        <div class="text-wall__block">
+          <span class="text-wall__item save-picture" v-on:click="savee('picture')">+ picture</span>
+          <span class="text-wall__item delete-picture" v-on:click="deletee('picture')">- picture</span>
+        </div>
+      </div>
       <span v-if="mode === 'all breeds'" class="open" v-on:click="breedOpener">OPEN</span>
-      <span class="save" v-on:click="saveBreed">SAVE</span>
     </div>
-    <span class="breedTag">  {{breed}} </span>
+    <span class="breedTag">{{subbreed ? subbreed + ' ' + breed : breed}}</span>
 
   </div>
 </template>
@@ -26,7 +35,7 @@ const gridConst = {
 }
 
 export default {
-  props: ['url', 'breed', 'mode', 'userId'],
+  props: ['url', 'breed', 'subbreed', 'mode', 'userId', 'userSomethingId'],
   data () {
     return {
       clickState: false
@@ -46,7 +55,7 @@ export default {
 
       let textWall = tile.children[1]
       // console.log(textWall)
-      textWall.style.height = image.height + 'px'
+      textWall.style.height = image.height - 34 + 'px'
       textWall.style.width = image.width + 'px'
       textWall.style.marginLeft = -(image.width / 2) + 'px'
 
@@ -68,18 +77,28 @@ export default {
     mouseleave(event) {
       let tile = this.$refs.tile
       tile.children[2].style.visibility = 'hidden'
+      // tile.children[1].style.display = 'none'
+      // this.clickState = false
     },
     click(event) {
       let tile = this.$refs.tile
       this.clickState = !this.clickState
       // console.log(this.clickState)
-      this.clickState ? tile.children[1].style.display = 'block' : tile.children[1].style.display = 'none'
+      this.clickState ? tile.children[1].style.display = 'flex' : tile.children[1].style.display = 'none'
       // tile.children[1].style.display = 'block'
     },
-    saveBreed() {
-      let load = this.mode === 'all breeds' ? {breed: this.breed} : {picture_url: this.url}
-      let url = this.mode === 'all breeds' ? 'http://slimapp/api/users/' + this.userId + '/save' : 'http://slimapp/api/users/' + this.userId + '/picture/save'
+    savee(item) {
+      let load = item === 'breed' ? {breed: this.breed, subbreed: this.subbreed} : {breed: this.breed, subbreed: this.subbreed, picture_url: this.url}
+      console.log(item)
+      let url = item === 'breed' ? 'http://slimapp/api/users/' + this.userId + '/save' : 'http://slimapp/api/users/' + this.userId + '/picture/save'
       this.$http.post(url, load)
+        .then(response => {
+          console.log(response)
+        })
+    },
+    deletee(item) {
+      let url = item === 'breed' ? 'http://slimapp/api/users/' + this.userSomethingId + '/delete' : 'http://slimapp/api/users/' + this.userSomethingId + '/picture/delete'
+      this.$http.delete(url)
         .then(response => {
           console.log(response)
         })
@@ -105,8 +124,10 @@ export default {
   box-shadow: 0 0 1px 0 rgba(0, 0, 0, 0.4);
 }
 
-.textWall {
+.text-wall {
   position: absolute;
+  justify-content: space-between;
+  flex-direction: column-reverse;
   margin: 0 auto;
   /* width: 100%;
   height: 100%; */
@@ -116,13 +137,24 @@ export default {
   /* background: rgba(51,51,51,0.8); */
 }
 
-.save {
-  position: absolute;
+.text-wall__big-block {
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+}
+
+.text-wall__block {
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-end;
+}
+
+.text-wall__item {
+  /* position: absolute; */
   width: 100%;
+  display: block;
   /* bottom: 50px; */
   left: 0;
-  top: calc(50% - 17px);
-  text-align: center;
   color: white;
   font-size: 30px;
   visibility: visible;
@@ -130,8 +162,24 @@ export default {
   cursor: pointer;
 }
 
+.save-breed {
+  top: calc(50% - 68px);
+}
+
+.delete-breed {
+  top: calc(50% - 34px);
+}
+
+.save-picture {
+  top: calc(50% - 0px);
+}
+
+.delete-picture {
+  top: calc(50% + 43px);
+}
+
 .open {
-  position: absolute;
+  /* position: absolute; */
   width: 100%;
   /* bottom: 50px; */
   left: 0;
