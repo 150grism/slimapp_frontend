@@ -26,8 +26,8 @@
 <script>
 import imagesLoaded from 'vue-images-loaded'
 
-const autoRows = 10
-const rowGap = 2
+var autoRows = 10
+var rowGap = 2
 const gridConst = {
   autoRows: autoRows,
   rowGap: rowGap,
@@ -38,26 +38,34 @@ export default {
   props: ['url', 'breed', 'subbreed', 'mode', 'userId', 'userSomethingId'],
   data () {
     return {
-      clickState: false
+      clickState: false,
+      autoRows: 10,
+      rowGap: 2,
     }
   },
   directives: {
     imagesLoaded
+  },
+  watch: {
+    autoRows: function() {
+
+    }
   },
   methods: {
     packGrid() {
       let tile = this.$refs.tile
       // console.log(this.breed)
       let image = tile.children[0]
-      let rowSpan = Math.floor((image.height + gridConst.rowGap) / gridConst.total)
+      let rowSpan = Math.floor((image.height + this.rowGap) / (this.autoRows + this.rowGap))
       tile.style.gridRowEnd = 'span ' + rowSpan
-      image.height = rowSpan * gridConst.total - gridConst.rowGap
+      image.height = rowSpan * (this.autoRows + this.rowGap) - this.rowGap
 
       let textWall = tile.children[1]
       // console.log(textWall)
       textWall.style.height = image.height - 34 + 'px'
       textWall.style.width = image.width + 'px'
       textWall.style.marginLeft = -(image.width / 2) + 'px'
+      textWall.style.fontSize = Math.min(image.height, image.width) / 7 + 'px'
 
       let breedTag = tile.children[2]
       if (breedTag.style.width <= image.width) {
@@ -77,8 +85,8 @@ export default {
     mouseleave(event) {
       let tile = this.$refs.tile
       tile.children[2].style.visibility = 'hidden'
-      // tile.children[1].style.display = 'none'
-      // this.clickState = false
+      tile.children[1].style.display = 'none'
+      this.clickState = false
     },
     click(event) {
       let tile = this.$refs.tile
@@ -105,7 +113,14 @@ export default {
     },
     breedOpener() {
       this.$emit('breedOpening')
+    },
+    changeGridConsts(autoRows, rowGap) {
+      this.autoRows = autoRows
+      this.rowGap = rowGap
     }
+  },
+  created: function() {
+    window.innerWidth < 534 ? this.changeGridConsts(40,5) : window.innerWidth < 787 ? this.changeGridConsts(20,2) : window.innerWidth < 1039 ? this.changeGridConsts(15,2) : console.log('ok')
   }
 }
 </script>
@@ -135,6 +150,7 @@ export default {
   left: 50%;
   display: none;
   /* background: rgba(51,51,51,0.8); */
+  text-shadow: 1px 1px 1px black;
 }
 
 .text-wall__big-block {
@@ -156,7 +172,7 @@ export default {
   /* bottom: 50px; */
   left: 0;
   color: white;
-  font-size: 30px;
+  /* font-size: 30px; */
   visibility: visible;
   overflow: visible;
   cursor: pointer;
@@ -186,7 +202,7 @@ export default {
   top: calc(50% - 51px);
   text-align: center;
   color: white;
-  font-size: 30px;
+  /* font-size: 30px; */
   visibility: visible;
   overflow: visible;
   cursor: pointer;

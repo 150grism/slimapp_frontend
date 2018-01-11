@@ -81,7 +81,7 @@ export default {
             }
           }
           this.allBreeds.sort()
-          this.allBreeds = this.allBreeds.slice(0, 15)
+          // this.allBreeds = this.allBreeds.slice(0, 15)
           this.bigArray = this.allBreeds
           // console.log(this.$route.params.breed)
         })
@@ -199,6 +199,27 @@ export default {
    grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
    grid-auto-flow: dense;
    grid-auto-rows: 10px;
+}
+
+@media screen and (max-width: 1039px) {
+  .images {
+    grid-row-gap: 2px;
+    grid-auto-rows: 15px;
+  }
+}
+
+@media screen and (max-width: 787px) {
+  .images {
+    grid-row-gap: 2px;
+    grid-auto-rows: 20px;
+  }
+}
+
+@media screen and (max-width: 534px) {
+  .images {
+    grid-row-gap: 5px;
+    grid-auto-rows: 40px;
+  }
 }
 
 </style>
