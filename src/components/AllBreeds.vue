@@ -17,7 +17,7 @@
         v-for="item in bigArray"
         :key="item[0] + item[urlIndex]"
         :url="item[urlIndex]"
-        :userSomethingId="item[0]"
+        :userPicBreedId="item[0]"
         :breed="item[breedIndex[0]]"
         :subbreed="item[breedIndex[1]]"
         :mode="mode"
@@ -54,16 +54,16 @@ export default {
       userId: 10
     }
   },
-  watch: {
-    '$route' (to, from) {
-      console.log(to.path, from.path)
-      switch (to.path) {
-        case '/all':
-          console.log(this.allBreeds, this.bigArray)
+  // watch: {
+  //   '$route' (to, from) {
+  //     console.log(to.path, from.path)
+  //     switch (to.path) {
+  //       case '/all':
+  //         console.log(this.allBreeds, this.bigArray)
           
-      }
-    }
-  },
+  //     }
+  //   }
+  // },
   methods: {
     fetchAllBreeds() {
       this.$http.get('https://dog.ceo/api/breeds/list/all')
@@ -100,10 +100,16 @@ export default {
       console.log(array)
     },
     openBreed(asBreed) {
-      this.photosOfABreed = asBreed[1] !== '' ? asBreed[1] + ' ' + asBreed[0] : asBreed[0]
-      let breedName = asBreed[1] !== '' ? asBreed[0] + '-' + asBreed[1] : asBreed[0]
-      this.$router.push(breedName)
-      let url = asBreed[1] !== '' ? `https://dog.ceo/api/breed/${asBreed[0]}/${asBreed[1]}/images` : `https://dog.ceo/api/breed/${asBreed[0]}/images`
+      console.log(asBreed)
+      if (asBreed.length === 4) {
+        this.breedIndex = [1, 2]
+      } else {
+        this.breedIndex = [0, 1]
+      }
+      this.photosOfABreed = asBreed[this.breedIndex[1]] !== '' ? asBreed[this.breedIndex[1]] + ' ' + asBreed[this.breedIndex[0]] : asBreed[this.breedIndex[0]]
+      // let breedName = asBreed[1] !== '' ? asBreed[0] + '-' + asBreed[1] : asBreed[0]
+      // this.$router.push(breedName)
+      let url = asBreed[this.breedIndex[1]] !== '' ? `https://dog.ceo/api/breed/${asBreed[this.breedIndex[0]]}/${asBreed[this.breedIndex[1]]}/images` : `https://dog.ceo/api/breed/${asBreed[this.breedIndex[0]]}/images`
       this.$http.get(url)
         .then(response => {
           let newUrls = response.body.message
@@ -111,8 +117,9 @@ export default {
           this.bigArray = []
           this.mode = 'one breed'
           newUrls.forEach(url => {
-            this.bigArray.push([asBreed[0], asBreed[1], url])
+            this.bigArray.push([asBreed[this.breedIndex[0]], asBreed[this.breedIndex[1]], url])
           })
+          this.breedIndex = [0, 1]
           // console.log(this.$route.params.breed)
         })
     },

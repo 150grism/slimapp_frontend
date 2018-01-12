@@ -5,7 +5,7 @@
       <label>User<input v-model="user" class="user" type="text"></label>
       <label>Password<input v-model="password" class="password" type="text"></label>
       <input v-if="logSignin === 'login'" class="submit" type="submit" value="Log in">
-      <input v-else class="submit" type="submit" value="Sign in">
+      <input v-else class="submit" type="submit" value="Sign up">
     </form>
     <button v-on:click="cancel" class="cancel">Cancel</button>
   </div>
@@ -52,13 +52,48 @@ export default {
 <style scoped>
 
 .log-sign-in {
-  display: block;
-  position: fixed;
-  left: calc(50% - 100px);
-  width: 200px;
-  height: 100px;
+  display: flex;
+  flex-direction: row;
+  justify-content: center;
+  align-items: center;
+  margin: 5px auto;
+  width: 250px;
+  height: 140px;
   z-index: 100;
-  background: crimson;
+  background: #005b9f;
+  border-radius: 3px;
+}
+
+.form {
+  margin-left: 7px;
+  color: white;
+}
+
+.cancel {
+  margin-top: -8px;
+  margin-right: 7px;
+  height: 60px;
+  width: 80px;
+  background: #ff6659;
+  border: 1px solid rgb(95, 95, 95);
+  color: rgb(128, 5, 5);
+  border-radius: 3px;
+  cursor: pointer;
+}
+
+.submit {
+  margin-top: 5px;
+  background: #ffab40;
+  border: 1px solid rgb(95, 95, 95);
+  color: black;
+  width: 60px;
+  border-radius: 3px;
+  cursor: pointer;
+}
+
+.user, .password {
+  border: 1px solid rgb(192, 192, 192);
+  outline-color: rgb(101, 167, 221);
 }
 
 </style>

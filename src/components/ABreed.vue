@@ -8,15 +8,15 @@
     <div class="text-wall">
       <div class="text-wall__big-block">
         <div class="text-wall__block">
-          <span class="text-wall__item save-breed" v-on:click="savee('breed')">+ breed</span>
-          <span class="text-wall__item delete-breed" v-on:click="deletee('breed')">- breed</span>
+          <span class="text-wall__item save-breed" v-on:click="savee('breed')">+breed</span>
+          <span class="text-wall__item delete-breed" v-on:click="deletee('breed')">-breed</span>
         </div>
         <div class="text-wall__block">
-          <span class="text-wall__item save-picture" v-on:click="savee('picture')">+ picture</span>
-          <span class="text-wall__item delete-picture" v-on:click="deletee('picture')">- picture</span>
+          <span class="text-wall__item save-picture" v-on:click="savee('picture')">+picture</span>
+          <span class="text-wall__item delete-picture" v-on:click="deletee('picture')">-picture</span>
         </div>
       </div>
-      <span v-if="mode === 'all breeds'" class="open" v-on:click="breedOpener">OPEN</span>
+      <span class="open" v-on:click="breedOpener">OPEN</span>
     </div>
     <span class="breedTag">{{subbreed ? subbreed + ' ' + breed : breed}}</span>
 
@@ -35,7 +35,7 @@ const gridConst = {
 }
 
 export default {
-  props: ['url', 'breed', 'subbreed', 'mode', 'userId', 'userSomethingId'],
+  props: ['url', 'breed', 'subbreed', 'mode', 'userId', 'userPicBreedId'],
   data () {
     return {
       clickState: false,
@@ -101,11 +101,11 @@ export default {
       let url = item === 'breed' ? 'http://slimapp/api/users/' + this.userId + '/save' : 'http://slimapp/api/users/' + this.userId + '/picture/save'
       this.$http.post(url, load)
         .then(response => {
-          console.log(response)
+          console.log('hello there', response)
         })
     },
     deletee(item) {
-      let url = item === 'breed' ? 'http://slimapp/api/users/' + this.userSomethingId + '/delete' : 'http://slimapp/api/users/' + this.userSomethingId + '/picture/delete'
+      let url = item === 'breed' ? 'http://slimapp/api/users/' + this.userPicBreedId + '/delete' : 'http://slimapp/api/users/' + this.userPicBreedId + '/picture/delete'
       this.$http.delete(url)
         .then(response => {
           console.log(response)
@@ -195,14 +195,11 @@ export default {
 }
 
 .open {
-  /* position: absolute; */
-  width: 100%;
-  /* bottom: 50px; */
+  margin: 0 auto;
   left: 0;
   top: calc(50% - 51px);
   text-align: center;
   color: white;
-  /* font-size: 30px; */
   visibility: visible;
   overflow: visible;
   cursor: pointer;
@@ -218,7 +215,7 @@ export default {
   color: white;
   font-size: 30px;
   visibility: hidden;
-  overflow: visible;
+  overflow-x: visible;
   z-index: 1;
 }
 
